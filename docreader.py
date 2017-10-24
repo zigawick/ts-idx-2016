@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import argparse
+
 import document_pb2
 import struct
 import gzip
-import sys
+
 
 
 class DocumentStreamReader:
@@ -33,8 +34,3 @@ def parse_command_line():
     parser.add_argument('files', nargs='+', help='Input files (.gz or plain) to process')
     return parser.parse_args()
 
-
-if __name__ == '__main__':
-    reader = DocumentStreamReader(parse_command_line().files)
-    for doc in reader:
-        print "%s\t%d bytes" % (doc.url, len(doc.text))
