@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 if [[ "$1" == "varbyte" ]]; then
   python2.7 index_var.py "${@:2}"
   echo "python2.7 index_read_var.py “\$@“" > search.sh

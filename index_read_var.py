@@ -1,46 +1,40 @@
-import pickle
+import cPickle
 import re
-
+import dict_hash
 import parser
 
 import bitstream
 
 if __name__ == '__main__':
-    dictionary = open("dict.txt", "rb")
-    term = pickle.load(dictionary)
     index_file = open("index.txt", "rb")
     url_file = open("url_file.txt", "rb")
-    urls = pickle.load(url_file)
+    urls = cPickle.load(url_file)
+
+    dict = dict_hash.dict_hash()
 
     while True:
         try:
             line = raw_input()
 
             result_ind = set()
-            question = line.decode ('utf8')
-            p = re.findall(parser.SPLIT_RGX, question)
-            for i in range(len(p)):
-                if not i % 2:
-                    word = p[i].lower().encode('utf8')
-                    found = []
-                    if not term.has_key (word):
-                        found = []
-                    else:
-                        place = term[word]
-                        index_file.seek(place[0])
-                        blob = index_file.read(place[1])
-                        found = bitstream.decompress_varbyte(blob)
+            question = line.decode('utf8')
 
-                    if i == 0:
-                        result_ind = set(found)
-                    else:
-                        result_ind = result_ind.intersection(set(found))
+            q = parser.parse_query(question)
+            parser.term_to_list_varbyte(q, dict, index_file)
+
+            curr = 0
+            res = []
+            while curr >= 0:
+                q.goto(curr)
+                curr = q.evaluate()
+                if curr != -2:
+                    res.append(curr)
+                curr += 1
 
             print question.encode('utf8')
-            print len(result_ind)
-            for i in sorted (result_ind):
+            print len(res)
+            for i in sorted(res):
                 print urls[i]
 
         except:
-        #     print ''
             break
